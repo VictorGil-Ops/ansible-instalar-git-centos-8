@@ -6,7 +6,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: Reconfigure and restart GitLab
+  notify: Reconfigure and restart GitLab ## handler
 
 - name: Remplazar configuraciones.
   lineinfile:
@@ -16,7 +16,7 @@
     line: "{{ item.config_prefix }}['{{ item.config_key }}'] = {% if item.config_quote is defined and item.config_quote %}'{{ item.config_value }}'{% else %}{{ item.config_value }}{% endif %}"
   with_items: "{{ gitlab_rb_configs }}"
   when: not gitlab_config_check.stat.exists
-  notify: Reconfigure and restart GitLab
+  notify: Reconfigure and restart GitLab ## handler
 
 - name: Copiar cerficados SSL de GitLab.
   copy:
@@ -25,7 +25,7 @@
   when:
     - gitlab_config_ssl_check.stat.isdir is defined
     - gitlab_config_ssl_check.stat.isdir
-  notify: Reconfigure and restart GitLab
+  notify: Reconfigure and restart GitLab ## handler
 
 - name: Creando ubicacion para backups.
   file:
