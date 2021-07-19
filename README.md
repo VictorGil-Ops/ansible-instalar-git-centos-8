@@ -40,3 +40,7 @@ git-master ansible_host=192.168.205.220
 Para ejecutar el playbook
 
 `ansible-playbook git_role.yaml -vv`
+
+# Primer acceso 
+
+El primer acceso se realiza con el usuario > root y la contraseña ubicada en `/etc/gitlab/initial_root_password`

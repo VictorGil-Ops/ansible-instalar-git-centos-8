@@ -1,7 +1,7 @@
 ---
-# Se define la fuente de descarga del Gitlab. 
+# Se definen variables de Gitlab. 
 gitlab_use_external_smtp: false
-gitlab_external_url: "https://gitlab.example.com"
+gitlab_external_url: "http://gitlab.local"
 gitlab_roles: ""
 gitlab_rb_configs: {}
   # Example configurations
@@ -43,3 +43,26 @@ gitlab_config_backup_path: /var/opt/gitlab/backups
 # Retro compatibilidad
 gitlab_search_config_paths: []
 gitlab_host_config_file_path: "{{ gitlab_host_config_path | default(inventory_hostname) }}/gitlab.rb.j2"
+
+# Configuración SSL
+gitlab_redirect_http_to_https: "false"
+gitlab_ssl_certificate: "/etc/gitlab/ssl/gitlab.crt"
+gitlab_ssl_certificate_key: "/etc/gitlab/ssl/gitlab.key"
+ 
+# Configuración de certificados SSL autofirmados
+gitlab_create_self_signed_cert: "false"
+gitlab_self_signed_cert_subj: "/C=ES/ST=Madrid/L=Madrid/O=IT/CN=gitlab"
+
+# Autenticación de cliente 2-way SSL
+gitlab_nginx_ssl_verify_client: ""
+gitlab_nginx_ssl_client_certificate: ""
+
+# Configuraciones opcionales
+gitlab_time_zone: "UTC"
+gitlab_backup_keep_time: "604800"
+gitlab_download_validate_certs: "false"
+
+# Autenticación de cliente 2-way SSL
+gitlab_nginx_ssl_verify_client: ""
+gitlab_nginx_ssl_client_certificate: ""
+ 
