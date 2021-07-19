@@ -1,0 +1,37 @@
+﻿---
+- name: Establecer ruta de buscqueda del directorio de configuracion local de GitLab.
+  set_fact:
+    gitlab_search_config_paths: "{{ gitlab_search_config_paths }} + [ '{{ gitlab_search_config_path }}' ]"
+  with_items: "{{ group_names }}"
+
+- name: Comprobando si existe el directorio de configuración de GitLab.
+  stat:
+    path: "{{ item }}"
+  register: gitlab_config_check
+  become: false
+  delegate_to: 127.0.0.1
+  with_first_found:
+    - files: "{{ gitlab_search_config_paths }}"
+      skip: true
+
+- name: Estableciendo el directorio de configuracion de GitLab.
+  set_fact:
+    gitlab_host_config_path: "{{ gitlab_config_check.results[0].stat.path }}"
+  when:
+    - gitlab_config_check.results[0] is defined
+    - gitlab_config_check.results[0].stat is defined
+    - gitlab_config_check.results[0].stat.isdir
+
+- name: Comprobando si existe el archivo de configuracion de la plantilla de GitLab.
+  stat:
+    path: "{{ gitlab_host_config_file_path }}"
+  become: false
+  delegate_to: 127.0.0.1
+  register: gitlab_config_check
+
+- name: Compruebando si existen certificados SSL de GitLab.
+  stat:
+    path: "{{ gitlab_host_config_ssl_path }}"
+  become: false
+  delegate_to: 127.0.0.1
+  register: gitlab_config_ssl_check

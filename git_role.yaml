@@ -1,0 +1,7 @@
+﻿---
+- name: git-master
+  hosts: all
+  become: true
+
+  roles:
+    - git-master

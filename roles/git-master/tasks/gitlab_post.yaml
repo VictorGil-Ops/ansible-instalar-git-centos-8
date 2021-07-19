@@ -1,0 +1,74 @@
+﻿---
+#- name: Setup sshd not to accept password
+
+- name: Copia el fichero de configuracion de GitLab.
+  template:
+    src: "{{ gitlab_host_config_file_path if gitlab_config_check.stat.exists else 'gitlab.rb.j2' }}"
+    dest: "{{ gitlab_config_file_path }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reconfigurando y reiniciando GitLab
+
+- name: Remplazar configuraciones.
+  lineinfile:
+    dest: "{{ gitlab_config_file_path }}"
+    state: present
+    regexp: "^\\#* *{{ item.config_prefix }}\\['{{ item.config_key }}'\\] = (.*)$"
+    line: "{{ item.config_prefix }}['{{ item.config_key }}'] = {% if item.config_quote is defined and item.config_quote %}'{{ item.config_value }}'{% else %}{{ item.config_value }}{% endif %}"
+  with_items: "{{ gitlab_rb_configs }}"
+  when: not gitlab_config_check.stat.exists
+  notify: Reconfigure and restart GitLab
+
+- name: Copiar cerficados SSL de GitLab.
+  copy:
+    src: "{{ gitlab_host_config_ssl_path }}"
+    dest: "{{ gitlab_config_path }}"
+  when:
+    - gitlab_config_ssl_check.stat.isdir is defined
+    - gitlab_config_ssl_check.stat.isdir
+  notify: Reconfigure and restart GitLab
+
+- name: Creando ubicacion para backups.
+  file:
+    path: "{{ gitlab_config_backup_path }}"
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
+
+- name: Configurar cron para el backup de la app.
+  cron:
+    name: Backup GitLab
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    day: "{{ item.day }}"
+    weekday: "{{ item.weekday }}"
+    month: "{{ item.month }}"
+    job: /opt/gitlab/bin/gitlab-backup create CRON=1
+  with_items: "{{ gitlab_app_backup_cron }}"
+  when: gitlab_app_backup_cron is defined
+
+- name: Configurar cron del backup para ficheros de configuracion.
+  cron:
+    name: Backup GitLab configuration files
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    day: "{{ item.day }}"
+    weekday: "{{ item.weekday }}"
+    month: "{{ item.month }}"
+    job: umask 0077; tar cfz {{ gitlab_config_backup_path }}/$(date "+etc-gitlab-\%s.tgz") -C / etc/gitlab
+  with_items: "{{ gitlab_config_backup_cron }}"
+  when: gitlab_config_backup_cron is defined
+  
+- name: Configurar cron para el backup de las claves SSH.
+  cron:
+    name: Backup SSH host keys
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    day: "{{ item.day }}"
+    weekday: "{{ item.weekday }}"
+    month: "{{ item.month }}"
+    job: umask 0077; tar cfz {{ gitlab_config_backup_path }}/$(date "+etc-ssh-\%s.tgz") -C / etc/ssh
+  with_items: "{{ gitlab_config_backup_cron }}"
+  when: gitlab_config_backup_cron is defined

@@ -1,0 +1,21 @@
+---
+- name: Incluir variables especificas de la familia de SO.
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version | int }}.yaml"
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml"
+  when: >
+    gitlab_package is not defined or
+    gitlab_package_dependencies is not defined
+- block:
+  - include_tasks: gitlab_pre.yaml
+  - include_tasks: gitlab_install.yaml
+  tags:
+    - gitlab_install
+
+- block: # Configurar Gitlab
+  - include_tasks: gitlab_search_config.yaml
+  - include_tasks: gitlab_post.yaml
+  tags:
+    - gitlab_configure
