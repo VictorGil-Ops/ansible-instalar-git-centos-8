@@ -34,7 +34,7 @@ ejemplo:
 
 ```
 [git_master]
-jenkins-master ansible_host=192.168.205.220
+git-master ansible_host=192.168.205.220
 
 ```
 Para ejecutar el playbook
