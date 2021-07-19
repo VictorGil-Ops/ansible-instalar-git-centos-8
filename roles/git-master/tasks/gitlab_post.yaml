@@ -1,6 +1,4 @@
 ﻿---
-#- name: Setup sshd not to accept password
-
 - name: Copia el fichero de configuracion de GitLab.
   template:
     src: "{{ gitlab_host_config_file_path if gitlab_config_check.stat.exists else 'gitlab.rb.j2' }}"
@@ -8,7 +6,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: Reconfigurando y reiniciando GitLab
+  notify: Reconfigure and restart GitLab
 
 - name: Remplazar configuraciones.
   lineinfile:
