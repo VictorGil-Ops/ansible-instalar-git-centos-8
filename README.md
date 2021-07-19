@@ -43,4 +43,4 @@ Para ejecutar el playbook
 
 # Primer acceso 
 
-El primer acceso se realiza con el usuario > root y la contraseña ubicada en `/etc/gitlab/initial_root_password`
+El primer acceso se realiza con el usuario `root` y la contraseña ubicada en `/etc/gitlab/initial_root_password`
